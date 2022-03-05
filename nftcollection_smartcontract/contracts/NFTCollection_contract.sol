@@ -20,6 +20,11 @@ contract NFTCollection_contract is
     //Cost, MaxSupply and MintAmount settings
     uint256 public cost = 0.0005 ether;
     uint256 public maxSupply = 7777;
+    uint256 public balance;
+    //Transfers Events
+    event TransferReceived(address _from, uint256 _amount);
+    event TransferSent(address _from, address _destAddr, uint256 _amount);
+
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     string baseSvg =
@@ -181,10 +186,10 @@ contract NFTCollection_contract is
     }
 
     function makeAnNFT() public payable {
-        uint256 supply = totalSupply();
+        uint256 _maxSupply = maxSupply;
         require(msg.value >= cost, "You need more ether");
         uint256 newItemId = _tokenIds.current();
-        require(newItemId < 10, "newItemId invalid");
+        require(newItemId < _maxSupply, "newItemId invalid");
         string memory first = pickRandomFirstWord(newItemId);
         string memory second = pickRandomSecondWord(newItemId);
         string memory third = pickRandomThirdWord(newItemId);
@@ -232,9 +237,10 @@ contract NFTCollection_contract is
         console.log("--------------------\n");
         //Mint requirements
         //require(newItemId < maxSupply, "newItemId invalid");
+
         _safeMint(msg.sender, newItemId);
         _setTokenURI(newItemId, finalTokenUri);
-        supply += 1;
+
         console.log(
             "An NFT w/ ID %s has been minted to %s",
             newItemId,
@@ -246,12 +252,14 @@ contract NFTCollection_contract is
             newItemId,
             msg.sender
         );
+
         emit NewNFTMinted(msg.sender, newItemId);
     }
 
     function ownerClaim() public onlyOwner {
-        uint256 supply = totalSupply();
         uint256 newItemId = _tokenIds.current();
+
+        require(newItemId < 8001, "Limited edition already minted");
         string memory first = pickRandomFirstWord(newItemId);
         string memory second = pickRandomSecondWord(newItemId);
         string memory third = pickRandomThirdWord(newItemId);
@@ -300,12 +308,13 @@ contract NFTCollection_contract is
         //Mint requirements
         _safeMint(msg.sender, newItemId);
         _setTokenURI(newItemId, finalTokenUri);
-        supply += 1;
+
         console.log(
             "An NFT w/ ID %s has been minted to %s",
             newItemId,
             msg.sender
         );
+        _tokenIds.increment();
         emit NewNFTMinted(msg.sender, newItemId);
     }
 
@@ -351,5 +360,21 @@ contract NFTCollection_contract is
         onlyOwner
     {
         _setDefaultRoyalty(_receiver, _royaltyFeesInBips);
+    }
+
+    receive() external payable {
+        balance += msg.value;
+        emit TransferReceived(msg.sender, msg.value);
+    }
+
+    function withdraw(uint256 amount, address payable destAddr)
+        public
+        payable
+        onlyOwner
+    {
+        require(amount <= balance, "Insufficient funds");
+        destAddr.transfer(amount);
+        balance -= amount;
+        emit TransferSent(msg.sender, destAddr, amount);
     }
 }
