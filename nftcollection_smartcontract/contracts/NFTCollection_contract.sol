@@ -21,7 +21,7 @@ contract NFTCollection_contract is
     Counters.Counter private _tokenIds;
     string baseSvg =
         "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 500 500'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='black' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
-    string[] espacamento1 = ["</text><text x='50' y='120' class='base'>"];
+    string[] space1 = ["</text><text x='50' y='120' class='base'>"];
     string[] names = [
         "Jess",
         "Bearpig ",
@@ -42,7 +42,7 @@ contract NFTCollection_contract is
         "Steve ",
         "Astasheram "
     ];
-    string[] espacamento2 = ["</text><text x='50' y='200' class='base'>"];
+    string[] space2 = ["</text><text x='50' y='200' class='base'>"];
     string[] classes = [
         "Bard ",
         "Healer ",
@@ -68,7 +68,7 @@ contract NFTCollection_contract is
         "Ironman ",
         "Blacksmith "
     ];
-    string[] espacamento3 = ["</text><text x='50' y='280' class='base'>"];
+    string[] space3 = ["</text><text x='50' y='280' class='base'>"];
     string[] races = [
         "Elf ",
         "Human ",
@@ -90,7 +90,7 @@ contract NFTCollection_contract is
         "Saci ",
         "Curgala "
     ];
-    string[] espacamento4 = ["</text><text x='50' y='360' class='base'>"];
+    string[] space4 = ["</text><text x='50' y='360' class='base'>"];
     string[] alignment = [
         "Lawful Good",
         "Neutral Good",
@@ -157,52 +157,20 @@ contract NFTCollection_contract is
         return alignment[rand];
     }
 
-    function pickEspacamento1(uint256 tokenId)
-        public
-        view
-        returns (string memory)
-    {
-        uint256 rand = random(
-            string(abi.encodePacked("ESPACAMENTO1", Strings.toString(tokenId)))
-        );
-        rand = rand % espacamento1.length;
-        return espacamento1[rand];
+    function pickSpace1() public view returns (string memory) {
+        return space1[0];
     }
 
-    function pickEspacamento2(uint256 tokenId)
-        public
-        view
-        returns (string memory)
-    {
-        uint256 rand = random(
-            string(abi.encodePacked("ESPACAMENTO2", Strings.toString(tokenId)))
-        );
-        rand = rand % espacamento2.length;
-        return espacamento2[rand];
+    function pickSpace2() public view returns (string memory) {
+        return space2[0];
     }
 
-    function pickEspacamento3(uint256 tokenId)
-        public
-        view
-        returns (string memory)
-    {
-        uint256 rand = random(
-            string(abi.encodePacked("ESPACAMENTO3", Strings.toString(tokenId)))
-        );
-        rand = rand % espacamento3.length;
-        return espacamento3[rand];
+    function pickSpace3() public view returns (string memory) {
+        return space3[0];
     }
 
-    function pickEspacamento4(uint256 tokenId)
-        public
-        view
-        returns (string memory)
-    {
-        uint256 rand = random(
-            string(abi.encodePacked("ESPACAMENTO4", Strings.toString(tokenId)))
-        );
-        rand = rand % espacamento4.length;
-        return espacamento4[rand];
+    function pickSpace4() public view returns (string memory) {
+        return space4[0];
     }
 
     function random(string memory input) internal pure returns (uint256) {
@@ -215,19 +183,19 @@ contract NFTCollection_contract is
         string memory second = pickRandomSecondWord(newItemId);
         string memory third = pickRandomThirdWord(newItemId);
         string memory fourth = pickRandomFourthWord(newItemId);
-        string memory espaco1 = pickEspacamento1(newItemId);
-        string memory espaco2 = pickEspacamento2(newItemId);
-        string memory espaco3 = pickEspacamento3(newItemId);
-        string memory espaco4 = pickEspacamento4(newItemId);
+        string memory tab1 = pickSpace1();
+        string memory tab2 = pickSpace2();
+        string memory tab3 = pickSpace3();
+        string memory tab4 = pickSpace4();
         string memory combinedWord = string(
             abi.encodePacked(
-                espaco1,
+                tab1,
                 first,
-                espaco2,
+                tab2,
                 second,
-                espaco3,
+                tab3,
                 third,
-                espaco4,
+                tab4,
                 fourth
             )
         );
