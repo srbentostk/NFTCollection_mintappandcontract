@@ -1,10 +1,12 @@
 const main = async () => {
   const nftContractFactory = await hre.ethers.getContractFactory('NFTCollection_contract');
-  const nftContract = await nftContractFactory.deploy();
+  let _royaltyFeesInBips = 100;
+  const nftContract = await nftContractFactory.deploy(_royaltyFeesInBips);
   await nftContract.deployed();
   console.log("Contract deployed to:", nftContract.address);
 
   // Call the function.
+  //let _mintAmount = 1;
   let txn = await nftContract.makeAnNFT()
   // Wait for it to be mined.
   await txn.wait()
