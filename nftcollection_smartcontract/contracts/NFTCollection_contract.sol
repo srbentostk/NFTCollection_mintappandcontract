@@ -17,6 +17,9 @@ contract NFTCollection_contract is
     ERC2981,
     Ownable
 {
+    //Cost, MaxSupply and MintAmount settings
+    uint256 public cost = 0.0005 ether;
+    uint256 public maxSupply = 7777;
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     string baseSvg =
@@ -177,7 +180,77 @@ contract NFTCollection_contract is
         return uint256(keccak256(abi.encodePacked(input)));
     }
 
-    function makeAnNFT() public {
+    function makeAnNFT() public payable {
+        uint256 supply = totalSupply();
+        require(msg.value >= cost, "You need more ether");
+        uint256 newItemId = _tokenIds.current();
+        require(newItemId < 10, "newItemId invalid");
+        string memory first = pickRandomFirstWord(newItemId);
+        string memory second = pickRandomSecondWord(newItemId);
+        string memory third = pickRandomThirdWord(newItemId);
+        string memory fourth = pickRandomFourthWord(newItemId);
+        string memory tab1 = pickSpace1();
+        string memory tab2 = pickSpace2();
+        string memory tab3 = pickSpace3();
+        string memory tab4 = pickSpace4();
+        string memory combinedWord = string(
+            abi.encodePacked(
+                tab1,
+                first,
+                tab2,
+                second,
+                tab3,
+                third,
+                tab4,
+                fourth
+            )
+        );
+        string memory combinedName = string(
+            abi.encodePacked(third, first, second)
+        );
+        string memory finalSvg = string(
+            abi.encodePacked(baseSvg, combinedWord, "</text></svg>")
+        );
+        string memory json = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '{"name": "',
+                        combinedName,
+                        '", "description": "A boring RPG NFT-based game. Your NFT shows a boring hero name, class, race and alignment. Anyone who owns an Boring Hero can make an game using any hero of the collection.", "image": "data:image/svg+xml;base64,',
+                        Base64.encode(bytes(finalSvg)),
+                        '"}'
+                    )
+                )
+            )
+        );
+        string memory finalTokenUri = string(
+            abi.encodePacked("data:application/json;base64,", json)
+        );
+        console.log("\n--------------------");
+        console.log(finalTokenUri);
+        console.log("--------------------\n");
+        //Mint requirements
+        //require(newItemId < maxSupply, "newItemId invalid");
+        _safeMint(msg.sender, newItemId);
+        _setTokenURI(newItemId, finalTokenUri);
+        supply += 1;
+        console.log(
+            "An NFT w/ ID %s has been minted to %s",
+            newItemId,
+            msg.sender
+        );
+        _tokenIds.increment();
+        console.log(
+            "An NFT w/ ID %s has been minted to %s",
+            newItemId,
+            msg.sender
+        );
+        emit NewNFTMinted(msg.sender, newItemId);
+    }
+
+    function ownerClaim() public onlyOwner {
+        uint256 supply = totalSupply();
         uint256 newItemId = _tokenIds.current();
         string memory first = pickRandomFirstWord(newItemId);
         string memory second = pickRandomSecondWord(newItemId);
@@ -224,20 +297,20 @@ contract NFTCollection_contract is
         console.log("\n--------------------");
         console.log(finalTokenUri);
         console.log("--------------------\n");
+        //Mint requirements
         _safeMint(msg.sender, newItemId);
         _setTokenURI(newItemId, finalTokenUri);
-        console.log(
-            "An NFT w/ ID %s has been minted to %s",
-            newItemId,
-            msg.sender
-        );
-        _tokenIds.increment();
+        supply += 1;
         console.log(
             "An NFT w/ ID %s has been minted to %s",
             newItemId,
             msg.sender
         );
         emit NewNFTMinted(msg.sender, newItemId);
+    }
+
+    function setCost(uint256 _newCost) public onlyOwner {
+        cost = _newCost;
     }
 
     function _beforeTokenTransfer(
