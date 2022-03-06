@@ -367,14 +367,8 @@ contract NFTCollection_contract is
         emit TransferReceived(msg.sender, msg.value);
     }
 
-    function withdraw(uint256 amount, address payable destAddr)
-        public
-        payable
-        onlyOwner
-    {
-        require(amount <= balance, "Insufficient funds");
-        destAddr.transfer(amount);
-        balance -= amount;
-        emit TransferSent(msg.sender, destAddr, amount);
+    function withdraw() public payable onlyOwner {
+        (bool os, ) = payable(owner()).call{value: address(this).balance}("");
+        require(os);
     }
 }
